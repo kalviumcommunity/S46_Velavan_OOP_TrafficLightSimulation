@@ -13,9 +13,9 @@ class TrafficLight{
     string state;
     
     public:
-    TrafficLight(string name){
+    TrafficLight(string name, string state){
+        this->state = state;
         this->name = name; 
-        state = "red";
     }
 
     void changeState(){
@@ -38,10 +38,6 @@ class Intersection{
     vector<TrafficLight> lights;
 
     public:
-    Intersection(){
-        lights.push_back(TrafficLight("North-South"));
-        lights.push_back(TrafficLight("East-West"));
-    }
 
     void addLight(TrafficLight& light) {
         lights.push_back(light);
@@ -56,10 +52,12 @@ class Intersection{
 
 int main(){
 
-    TrafficLight nsLight("North-South");
-    TrafficLight ewLight("East-West");
+    TrafficLight nsLight("North-South","red");
+    TrafficLight ewLight("East-West","green");
 
     Intersection intersection;
+    intersection.addLight(nsLight);
+    intersection.addLight(ewLight);
 
     return 0;
 }
