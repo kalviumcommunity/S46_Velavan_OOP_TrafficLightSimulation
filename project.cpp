@@ -52,12 +52,18 @@ class Intersection{
 
 int main(){
 
-    TrafficLight nsLight("North-South","red");
-    TrafficLight ewLight("East-West","green");
+    TrafficLight trafficLights[] = {
+        TrafficLight("North-South", "red"),
+        TrafficLight("East-West", "green")
+    };
 
     Intersection intersection;
-    intersection.addLight(nsLight);
-    intersection.addLight(ewLight);
+
+    for (int i = 0; i < 2; i++) {
+        intersection.addLight(trafficLights[i]);
+    }
+
+    intersection.displayStates();
 
     return 0;
 }
