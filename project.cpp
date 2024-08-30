@@ -35,35 +35,43 @@ class TrafficLight{
 
 class Intersection{
     private:
-    vector<TrafficLight> lights;
+    vector<TrafficLight*> lights;
 
     public:
 
-    void addLight(TrafficLight& light) {
+    // A Deconstructor
+    ~Intersection() { 
+        for (auto light : lights) {
+            delete light; 
+        }
+        cout << "Intersection destroyed and all lights are deleted." << endl;
+    }
+
+    void addLight(TrafficLight* light) {
         lights.push_back(light);
     }
 
     void displayStates(){
         for(int i = 0; i < lights.size(); i++){
-            lights[i].displayState();
+            lights[i]->displayState();
         }
     }
 };
 
 int main(){
 
-    TrafficLight trafficLights[] = {
-        TrafficLight("North-South", "red"),
-        TrafficLight("East-West", "green")
-    };
+    TrafficLight* nsLight = new TrafficLight("North-South", "red");
+    TrafficLight* ewLight = new TrafficLight("East-West", "green");
 
-    Intersection intersection;
+    Intersection* intersection = new Intersection();
 
-    for (int i = 0; i < 2; i++) {
-        intersection.addLight(trafficLights[i]);
-    }
+    intersection->addLight(nsLight);
+    intersection->addLight(ewLight);
 
-    intersection.displayStates();
+    intersection->displayStates();
+
+    // Delete the intersection object, which calls its destructor, which in turn deletes all TrafficLight objects
+    delete intersection;
 
     return 0;
 }
