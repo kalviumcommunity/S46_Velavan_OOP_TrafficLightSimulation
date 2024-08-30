@@ -11,11 +11,18 @@ class TrafficLight{
     private:
     string name;
     string state;
+    static int totalLights; 
+    static string defaultState;
     
     public:
-    TrafficLight(string name, string state){
+    TrafficLight(string name, string state = defaultState){
         this->state = state;
-        this->name = name; 
+        this->name = name;
+        totalLights++; 
+    }
+
+    ~TrafficLight() {
+        totalLights--;
     }
 
     void changeState(){
@@ -31,7 +38,22 @@ class TrafficLight{
     void displayState(){
         cout << "Traffic Light " << name << " is " << state << endl;
     }
+
+    static int getTotalLights() {
+        return totalLights;
+    }
+
+    static void setDefaultState(string state) {
+        defaultState = state;
+    }
+
+    static string getDefaultState() {
+        return defaultState;
+    }
 };
+
+int TrafficLight::totalLights = 0;
+string TrafficLight::defaultState = "red";
 
 class Intersection{
     private:
@@ -70,7 +92,11 @@ int main(){
 
     intersection->displayStates();
 
-    // Delete the intersection object, which calls its destructor, which in turn deletes all TrafficLight objects
+    cout << "Total Traffic Lights created: " << TrafficLight::getTotalLights() << endl;
+    
+    TrafficLight::setDefaultState("green");
+    cout << "Default state for new Traffic Lights set to: " << TrafficLight::getDefaultState() << endl;
+
     delete intersection;
 
     return 0;
