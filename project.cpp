@@ -7,13 +7,14 @@
 #include <utility>
 using namespace std;
 
+// Base Class: TrafficLight
 class TrafficLight{
-    private:
+    protected:
     string name;
     string state;
     static int totalLights; 
     static string defaultState;
-    
+
     public:
     TrafficLight(string name, string state = defaultState){
         this->state = state;
@@ -55,13 +56,50 @@ class TrafficLight{
 int TrafficLight::totalLights = 0;
 string TrafficLight::defaultState = "red";
 
+// Derived Class 1 : Single Inheritance from TrafficLight
+class PedestrianLight : public TrafficLight {
+    private:
+    string walkSignal;
+
+    public:
+    PedestrianLight(string name, string state, string walkSignal)
+        : TrafficLight(name, state), walkSignal(walkSignal) {}
+
+    void displayState(){
+        TrafficLight::displayState();
+        cout << "Walk Signal: " << walkSignal << endl;
+    }
+
+    void changeSignal() {
+        if (walkSignal == "Walk") {
+            walkSignal = "Don't Walk";
+        } else {
+            walkSignal = "Walk";
+        }
+    }
+};
+
+// Derived Class 2 : Multilevel Inheritance from PedestrianLight
+class SmartTrafficLight : public PedestrianLight {
+    private:
+    bool sensorStatus;
+
+    public:
+    SmartTrafficLight(string name, string state, string walkSignal, bool sensorStatus)
+        : PedestrianLight(name, state, walkSignal), sensorStatus(sensorStatus) {}
+
+    void displayState(){
+        PedestrianLight::displayState();
+        cout << "Sensor Status: " << (sensorStatus ? "Active" : "Inactive") << endl;
+    }
+};
+
 class Intersection{
     private:
     vector<TrafficLight*> lights;
 
     public:
 
-    // A Deconstructor
     ~Intersection() { 
         for (auto light : lights) {
             delete light; 
@@ -83,19 +121,16 @@ class Intersection{
 int main(){
 
     TrafficLight* nsLight = new TrafficLight("North-South", "red");
-    TrafficLight* ewLight = new TrafficLight("East-West", "green");
-
+    SmartTrafficLight* smartLight = new SmartTrafficLight("Smart Light", "green", "Walk", true);
+    
     Intersection* intersection = new Intersection();
 
     intersection->addLight(nsLight);
-    intersection->addLight(ewLight);
+    intersection->addLight(smartLight);
 
     intersection->displayStates();
 
     cout << "Total Traffic Lights created: " << TrafficLight::getTotalLights() << endl;
-    
-    TrafficLight::setDefaultState("green");
-    cout << "Default state for new Traffic Lights set to: " << TrafficLight::getDefaultState() << endl;
 
     delete intersection;
 
