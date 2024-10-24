@@ -7,8 +7,7 @@
 #include <utility>
 using namespace std;
 
-// Base Class: TrafficLight
-class TrafficLight{
+class TrafficLight {
     protected:
     string name;
     string state;
@@ -16,27 +15,28 @@ class TrafficLight{
     static string defaultState;
 
     public:
-    TrafficLight(string name, string state = defaultState){
+    TrafficLight(string name, string state = defaultState) {
         this->state = state;
         this->name = name;
         totalLights++; 
     }
 
-    ~TrafficLight() {
+    virtual ~TrafficLight() {
         totalLights--;
     }
 
-    void changeState(){
+    // Virtual function to demonstrate polymorphism
+    virtual void changeState() {
         if(state == "red"){
             state = "green";
-        }else if (state == "green"){
+        } else if (state == "green"){
             state = "yellow";
-        }else{
+        } else {
             state = "red";
         }
     }
 
-    void displayState(){
+    virtual void displayState() {
         cout << "Traffic Light " << name << " is " << state << endl;
     }
 
@@ -56,50 +56,31 @@ class TrafficLight{
 int TrafficLight::totalLights = 0;
 string TrafficLight::defaultState = "red";
 
-// Derived Class 1 : Single Inheritance from TrafficLight
-class PedestrianLight : public TrafficLight {
-    private:
-    string walkSignal;
-
+// Derived class
+class SmartTrafficLight : public TrafficLight {
     public:
-    PedestrianLight(string name, string state, string walkSignal)
-        : TrafficLight(name, state), walkSignal(walkSignal) {}
+    SmartTrafficLight(string name, string state = defaultState) : TrafficLight(name, state) {}
 
-    void displayState(){
-        TrafficLight::displayState();
-        cout << "Walk Signal: " << walkSignal << endl;
+    // Overriding changeState function to demonstrate polymorphism
+    void changeState() override {
+        if(state == "red"){
+            state = "green";
+        } else if (state == "green"){
+            state = "red";  // Skipping yellow for "smart" light
+        } 
     }
 
-    void changeSignal() {
-        if (walkSignal == "Walk") {
-            walkSignal = "Don't Walk";
-        } else {
-            walkSignal = "Walk";
-        }
+    void displayState() override {
+        cout << "Smart Traffic Light " << name << " is " << state << endl;
     }
 };
 
-// Derived Class 2 : Multilevel Inheritance from PedestrianLight
-class SmartTrafficLight : public PedestrianLight {
-    private:
-    bool sensorStatus;
-
-    public:
-    SmartTrafficLight(string name, string state, string walkSignal, bool sensorStatus)
-        : PedestrianLight(name, state, walkSignal), sensorStatus(sensorStatus) {}
-
-    void displayState(){
-        PedestrianLight::displayState();
-        cout << "Sensor Status: " << (sensorStatus ? "Active" : "Inactive") << endl;
-    }
-};
-
-class Intersection{
+class Intersection {
     private:
     vector<TrafficLight*> lights;
 
     public:
-
+    // Destructor
     ~Intersection() { 
         for (auto light : lights) {
             delete light; 
@@ -116,22 +97,33 @@ class Intersection{
             lights[i]->displayState();
         }
     }
+
+    void changeAllStates(){
+        for(int i = 0; i < lights.size(); i++){
+            lights[i]->changeState();
+        }
+    }
 };
 
-int main(){
+int main() {
 
     TrafficLight* nsLight = new TrafficLight("North-South", "red");
-    SmartTrafficLight* smartLight = new SmartTrafficLight("Smart Light", "green", "Walk", true);
-    
+    SmartTrafficLight* smartLight = new SmartTrafficLight("Smart-East-West", "red");
+
     Intersection* intersection = new Intersection();
 
     intersection->addLight(nsLight);
-    intersection->addLight(smartLight);
+    intersection->addLight(smartLight);  
 
+    cout << "Before changing states:" << endl;
+    intersection->displayStates();
+
+    cout << "\nAfter changing states:" << endl;
+    intersection->changeAllStates();  
     intersection->displayStates();
 
     cout << "Total Traffic Lights created: " << TrafficLight::getTotalLights() << endl;
-
+    
     delete intersection;
 
     return 0;
