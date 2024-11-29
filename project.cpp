@@ -1,129 +1,86 @@
 #include <iostream>
 #include <vector>
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
 #include <string>
-#include <utility>
 using namespace std;
 
+// Class to manage a single traffic light
 class TrafficLight {
-    protected:
+private:
     string name;
     string state;
-    static int totalLights; 
-    static string defaultState;
 
-    public:
-    TrafficLight(string name, string state = defaultState) {
-        this->state = state;
-        this->name = name;
-        totalLights++; 
-    }
+public:
+    TrafficLight(string name, string state = "red") : name(name), state(state) {}
 
-    virtual ~TrafficLight() {
-        totalLights--;
-    }
-
-    // Virtual function to demonstrate polymorphism
-    virtual void changeState() {
-        if(state == "red"){
+    void changeState() {
+        if (state == "red") {
             state = "green";
-        } else if (state == "green"){
+        } else if (state == "green") {
             state = "yellow";
         } else {
             state = "red";
         }
     }
 
-    virtual void displayState() {
+    string getState() const {
+        return state;
+    }
+
+    string getName() const {
+        return name;
+    }
+
+    void displayState() const {
         cout << "Traffic Light " << name << " is " << state << endl;
     }
-
-    static int getTotalLights() {
-        return totalLights;
-    }
-
-    static void setDefaultState(string state) {
-        defaultState = state;
-    }
-
-    static string getDefaultState() {
-        return defaultState;
-    }
 };
 
-int TrafficLight::totalLights = 0;
-string TrafficLight::defaultState = "red";
-
-// Derived class
-class SmartTrafficLight : public TrafficLight {
-    public:
-    SmartTrafficLight(string name, string state = defaultState) : TrafficLight(name, state) {}
-
-    // Overriding changeState function to demonstrate polymorphism
-    void changeState() override {
-        if(state == "red"){
-            state = "green";
-        } else if (state == "green"){
-            state = "red";  // Skipping yellow for "smart" light
-        } 
-    }
-
-    void displayState() override {
-        cout << "Smart Traffic Light " << name << " is " << state << endl;
-    }
-};
-
+// Class to manage the collection of traffic lights
 class Intersection {
-    private:
+private:
     vector<TrafficLight*> lights;
 
-    public:
-    // Destructor
-    ~Intersection() { 
+public:
+    ~Intersection() {
         for (auto light : lights) {
-            delete light; 
+            delete light;
         }
-        cout << "Intersection destroyed and all lights are deleted." << endl;
     }
 
     void addLight(TrafficLight* light) {
         lights.push_back(light);
     }
 
-    void displayStates(){
-        for(int i = 0; i < lights.size(); i++){
-            lights[i]->displayState();
-        }
-    }
-
-    void changeAllStates(){
-        for(int i = 0; i < lights.size(); i++){
-            lights[i]->changeState();
+    void displayStates() {
+        for (auto light : lights) {
+            light->displayState();
         }
     }
 };
 
+// Class to log traffic light states 
+class TrafficLightLogger {
+public:
+    static void logTrafficLightState(const TrafficLight& light) {
+        cout << "[LOG] Traffic Light " << light.getName() << " is currently " << light.getState() << endl;
+    }
+};
+
 int main() {
-
+    // Creating traffic lights
     TrafficLight* nsLight = new TrafficLight("North-South", "red");
-    SmartTrafficLight* smartLight = new SmartTrafficLight("Smart-East-West", "red");
+    TrafficLight* ewLight = new TrafficLight("East-West", "green");
 
+    // Creating intersection and add lights
     Intersection* intersection = new Intersection();
-
     intersection->addLight(nsLight);
-    intersection->addLight(smartLight);  
+    intersection->addLight(ewLight);
 
-    cout << "Before changing states:" << endl;
+    // Display and log states
     intersection->displayStates();
+    TrafficLightLogger::logTrafficLightState(*nsLight);
+    TrafficLightLogger::logTrafficLightState(*ewLight);
 
-    cout << "\nAfter changing states:" << endl;
-    intersection->changeAllStates();  
-    intersection->displayStates();
-
-    cout << "Total Traffic Lights created: " << TrafficLight::getTotalLights() << endl;
-    
     delete intersection;
 
     return 0;
