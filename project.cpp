@@ -21,7 +21,7 @@ public:
 };
 
 // Custom state change behavior (red -> yellow -> green -> red)
-class  CustomStateChange : public StateChangeStrategy {
+class CustomStateChange : public StateChangeStrategy {
 public:
     string getNextState(const string& currentState) const override {
         if (currentState == "red") return "green";
@@ -32,7 +32,7 @@ public:
 
 // Class to manage a single traffic light
 class TrafficLight {
-private:
+protected:
     string name;
     string state;
     StateChangeStrategy* stateChanger;
@@ -41,11 +41,11 @@ public:
     TrafficLight(string name, StateChangeStrategy* strategy, string state = "red")
         : name(name), state(state), stateChanger(strategy) {}
 
-    ~TrafficLight() {
+    virtual ~TrafficLight() {
         delete stateChanger; // Free dynamically allocated strategy
     }
 
-    void changeState() {
+    virtual void changeState() {
         state = stateChanger->getNextState(state);
     }
 
@@ -57,8 +57,32 @@ public:
         return name;
     }
 
-    void displayState() const {
+    virtual void displayState() const {
         cout << "Traffic Light " << name << " is " << state << endl;
+    }
+};
+
+// Specialized traffic light for pedestrians
+class PedestrianTrafficLight : public TrafficLight {
+private:
+    string pedestrianSignal; // E.g., "Walk" or "Don't Walk"
+
+public:
+    PedestrianTrafficLight(string name, StateChangeStrategy* strategy, string state = "red", string pedestrianSignal = "Don't Walk")
+        : TrafficLight(name, strategy, state), pedestrianSignal(pedestrianSignal) {}
+
+    void changeState() override {
+        TrafficLight::changeState(); // Change the main light state
+        if (state == "red") {
+            pedestrianSignal = "Walk";
+        } else {
+            pedestrianSignal = "Don't Walk";
+        }
+    }
+
+    void displayState() const override {
+        TrafficLight::displayState();
+        cout << "Pedestrian Signal: " << pedestrianSignal << endl;
     }
 };
 
@@ -103,11 +127,13 @@ int main() {
     // Creating traffic lights with different state-change strategies
     TrafficLight* nsLight = new TrafficLight("North-South", new DefaultStateChange());
     TrafficLight* ewLight = new TrafficLight("East-West", new CustomStateChange());
+    TrafficLight* pedestrianLight = new PedestrianTrafficLight("Pedestrian-Crossing", new DefaultStateChange());
 
     // Creating an intersection and adding lights
     Intersection* intersection = new Intersection();
     intersection->addLight(nsLight);
     intersection->addLight(ewLight);
+    intersection->addLight(pedestrianLight);
 
     // Displaying initial states
     intersection->displayStates();
@@ -119,6 +145,7 @@ int main() {
     // Logging states
     TrafficLightLogger::logTrafficLightState(*nsLight);
     TrafficLightLogger::logTrafficLightState(*ewLight);
+    TrafficLightLogger::logTrafficLightState(*pedestrianLight);
 
     delete intersection;
 
